@@ -28,13 +28,18 @@ var formation = [4, 4, 3];
 
 //write your function here
 
-function createFormation(){
-  var formationDetails = {
-    defender : 4,
-    midfield : 4,
-    forward : 3
+function createFormation(f){
+  if (f.length===0){
+    return null;
   }
-  return formationDetails
+  else{
+    var formationDetails = {
+      defender : f[0],
+      midfield : f[1],
+      forward : f[2]
+    }
+    return formationDetails;
+  }
 };
 
 // Dont edit the following code
@@ -49,7 +54,7 @@ try {
 
 function filterByDebut(year){
   var yearFilter = players.filter((player)=>{
-    return player.debut===year;
+    return player.debut==year;
   });
   return yearFilter;
 };
@@ -66,18 +71,17 @@ function filterByPosition(position){
 //Progression 5 - Filter players that have won ______ award
 
 function filterByAward(awardName){
-  var awardFilter = players.filter((player) =>{
-    return player.awards.name===awardName;
-  });
-  return awardFilter;
-}
+  return players.filter(player =>
+    player.awards.some(award => award.name === awardName)
+  );
+};
 
 //Progression 6 - Filter players that won ______ award ____ times
 
 function filterByAwardxTimes(awardName,noOfTimes){
   return players.filter((p) =>{
-    var awardCount = players.awards.filter(award => award.name===awardName).length;
-    return awardCount===noOfTimes;
+    var awardCount = p.awards.filter(award => award.name===awardName).length;
+    return awardCount==noOfTimes;
   });
 };
 
@@ -85,7 +89,7 @@ function filterByAwardxTimes(awardName,noOfTimes){
 
 function filterByAwardxCountry(awardName,country){
   return players.filter(player => {
-    var hasAward = players.awards.some(award => award.name===awardName);
+    var hasAward = player.awards.some(award => award.name===awardName);
     return hasAward && player.country===country;
   });
 };
@@ -95,14 +99,14 @@ function filterByAwardxCountry(awardName,country){
 function filterByNoOfAwardsxTeamxAge(noOfAwards,team,age){
   return players.filter(player =>{
     var awardsCount = player.awards.length;
-    return(awardsCount>=noOfAwards && player.team===team && player.age===age);
+    return(awardsCount>=noOfAwards && player.team===team && player.age<age);
   });
 };
 
 //Progression 9 - Sort players in descending order of their age
 
 function SortByAge(){
-  return player.slice().sort((a,b)=>{
+  return players.slice().sort((a,b)=>{
     if (a.age<b.age){
       return 1;
     }
@@ -117,7 +121,43 @@ function SortByAge(){
 
 //Progression 10 - Sort players beloging to _____ team in descending order of awards won
 
+function FilterByTeamxSortByNoOfAwards(team){
+  var teamFilter = players.filter(p =>{
+    return p.team === team;
+  })
+  return teamFilter.slice().sort((a,b) => b.awards.length - a.awards.length)
+};
+
 //Challenge 1 - Sort players that have won _______ award _____ times and belong to _______ country in alphabetical order of their names
+
+function SortByNamexAwardxTimes(awardName,noOfTimes,country){
+  var matchingPlayers = players.filter(p => {
+    var awardsCount = p.awards.filter(award => award.name===awardName).length;
+    return awardsCount===noOfTimes && p.country===country;
+  })
+  return matchingPlayers.slice().sort((a,b) => b.name - a.name);
+};
 
 //Challenge 2 - Sort players that are older than _____ years in alphabetical order
 //Sort the awards won by them in reverse chronological order
+
+function SortByNamexOlderThan(age){
+  var oldPlayers = players.filter(p => p.age>age);
+  var sortedPlayers =[];
+  for (let i=0; i<oldPlayers.length; i++){
+    var pl = oldPlayers[i];
+    var sortedAwards = pl.awards.slice().sort((a,b) => b.year - a.year)
+    sortedPlayers.push({...p,awards:sortedAwards});
+  }
+  return sortedPlayers.sort((a,b) => {
+    if (a.name > b.name){
+      return 1;
+    }
+    else if (b.name > a.name){
+      return -1;
+    }
+    else{
+      return 0;
+    }
+  });
+};
